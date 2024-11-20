@@ -5,6 +5,7 @@ const hospitalSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true, // The name is required
+    unique: true
   },
   regId: {
     type: String,
@@ -18,6 +19,7 @@ const hospitalSchema = new mongoose.Schema({
     type: String,
     required: true, // Contact email is required
     match: [/.+\@.+\..+/i, 'Please provide a valid email address'],
+    unique: true
   },
   address: {
     type: String,
