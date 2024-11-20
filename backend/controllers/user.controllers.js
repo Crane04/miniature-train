@@ -77,3 +77,22 @@ exports.createUser = async (req, res) => {
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find();
+
+    // Return the users as a JSON response
+    res.status(200).json({
+      message: 'Users retrieved successfully',
+      users,
+    });
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({
+      message: 'Error retrieving users',
+      error: error.message,
+    });
+  }
+};
