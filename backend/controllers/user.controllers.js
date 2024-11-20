@@ -96,3 +96,54 @@ exports.getAllUsers = async (req, res) => {
     });
   }
 };
+
+// Update user details and add the current hospital as previous hospital
+exports.updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from URL params
+    const updateData = req.body; // Get data to update from request body
+
+    // Check if the user is authenticated and get their hospital
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token is required.' });
+    }
+
+    // Verify JWT token and extract hospital details
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const hospital = await Hospital.findOne({regId:decoded.regId});
+    if (!hospital) {
+      return res.status(404).json({ message: 'Invalid hospital authorization.' });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Add the current hospital to the previousHospitals array (if not already added)
+    if (!user.previousHospitals.some(h => h.hospitalName === hospital.name)) {
+      user.previousHospitals.push({
+        hospitalName: hospital.name,
+        dateVisited: new Date(),
+      });
+    }
+
+    // Update the user details
+    const updatedUser = await User.findByIdAndUpdate(userId, { ...updateData, previousHospitals: user.previousHospitals }, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      message: 'User updated successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error updating user',
+      error: error.message,
+    });
+  }
+};
