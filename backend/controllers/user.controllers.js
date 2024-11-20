@@ -147,3 +147,91 @@ exports.updateUser = async (req, res) => {
     });
   }
 };
+
+exports.searchUser = async (req, res) => {
+  try {
+    const {
+      fullName,
+      address,
+      gender,
+      genotype,
+      bloodGroup,
+      illness,
+      hospitalName,
+      phoneNumber,
+      dateOfBirth,
+      disability,
+    } = req.query;
+
+    // Build the search query object
+    const searchQuery = {};
+
+    // Full Name (Case-insensitive partial search)
+    if (fullName) {
+      searchQuery.fullName = { $regex: fullName, $options: 'i' };
+    }
+
+    // Address (Case-insensitive partial search)
+    if (address) {
+      searchQuery.address = { $regex: address, $options: 'i' };
+    }
+
+    // Gender (Exact match)
+    if (gender) {
+      searchQuery.gender = gender;
+    }
+
+    // Genotype (Exact match)
+    if (genotype) {
+      searchQuery.genotype = genotype;
+    }
+
+    // Blood Group (Exact match)
+    if (bloodGroup) {
+      searchQuery.bloodGroup = bloodGroup;
+    }
+
+    // Illness (Partial search within previous illnesses)
+    if (illness) {
+      searchQuery['previousIllnesses.illness'] = { $regex: illness, $options: 'i' };
+    }
+
+    // Hospital Name (Partial search within previous hospitals)
+    if (hospitalName) {
+      searchQuery['previousHospitals.hospitalName'] = { $regex: hospitalName, $options: 'i' };
+    }
+
+    // Phone Number (Case-insensitive partial search)
+    if (phoneNumber) {
+      searchQuery.phoneNumber = { $regex: phoneNumber, $options: 'i' };
+    }
+
+    // Date of Birth (Exact match or range if needed)
+    if (dateOfBirth) {
+      searchQuery.dateOfBirth = new Date(dateOfBirth);
+    }
+
+    // Disability (Exact match)
+    if (disability) {
+      searchQuery.disability = { $regex: disability, $options: 'i' };
+    }
+
+    // Perform the search using the built query
+    const users = await User.find(searchQuery);
+
+    // If no users are found
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'No users found matching your search.' });
+    }
+
+    // Return the search results
+    res.status(200).json({
+      message: 'Search results',
+      users,
+    });
+  } catch (err) {
+    // Handle errors
+    res.status(500).json({ message: 'Error searching users', error: err.message });
+  }
+};
+
