@@ -13,6 +13,22 @@ exports.createHospital = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    // Check if a hospital with the same name already exists
+    const hospitalByName = await Hospital.findOne({ name });
+    if (hospitalByName) {
+      return res.status(400).json({
+        message: 'A hospital with this name already exists.',
+      });
+    }
+
+    // Check if a hospital with the same contact email already exists
+    const hospitalByEmail = await Hospital.findOne({ contactEmail });
+    if (hospitalByEmail) {
+      return res.status(400).json({
+        message: 'A hospital with this contact email already exists.',
+      });
+    }
+
     // Generate a random 7-character regId
     const regId = Math.random().toString(36).substring(2, 9).toUpperCase();
 
@@ -30,7 +46,7 @@ exports.createHospital = async (req, res) => {
 
     // Respond with success message and the new hospital data
     res.status(201).json({
-      message: 'Hospital created successfully, and email sent!',
+      message: 'Hospital created successfully!',
       hospital: newHospital,
     });
   } catch (err) {
@@ -38,6 +54,7 @@ exports.createHospital = async (req, res) => {
     res.status(500).json({ message: 'Error creating hospital', error: err.message });
   }
 };
+
 
 exports.hospitalLogin = async (req, res) => {
   try {
