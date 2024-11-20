@@ -5,6 +5,8 @@ const hospitalController = require('../controllers/hospital.controller');
 // Route to create a new hospital
 router.post('/create', hospitalController.createHospital);
 
+router.post('/login', hospitalController.hospitalLogin);
+
 // Route to get all hospitals
 router.get('/', hospitalController.getAllHospitals);
 
