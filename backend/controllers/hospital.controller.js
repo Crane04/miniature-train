@@ -1,14 +1,20 @@
 const Hospital = require('../models/hospitalModel');
 const { sendEmail } = require('../utils/emailSender')
+const jwt = require('jsonwebtoken');
+require("dotenv").config()
+const SECRET_KEY = process.env.SECRET_KEY
 // Create a new hospital
 exports.createHospital = async (req, res) => {
   try {
-    const { name, regId, hospitalType, contactEmail, address } = req.body;
+    const { name, hospitalType, contactEmail, address } = req.body;
 
     // Check if any of the fields are empty
-    if (!name || !regId || !hospitalType || !contactEmail || !address) {
+    if (!name || !hospitalType || !contactEmail || !address) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
+
+    // Generate a random 7-character regId
+    const regId = Math.random().toString(36).substring(2, 9).toUpperCase();
 
     // Create the new hospital document
     const newHospital = new Hospital({
@@ -18,26 +24,49 @@ exports.createHospital = async (req, res) => {
       contactEmail,
       address,
     });
-    
+
     // Save the new hospital to the database
     await newHospital.save();
 
-    // // Prepare the email content
-    // const subject = 'Hospital Registration Pending';
-    // const text = `Dear ${name},\n\nThank you for registering your hospital with us. Your registration is currently pending and will be reviewed shortly.\n\nWe will notify you once the registration process is complete.`;
-    // const html = `<p>Dear <strong>${name}</strong>,</p><p>Thank you for registering your hospital with us. Your registration is currently pending and will be reviewed shortly.</p><p>We will notify you once the registration process is complete.</p>`;
-
-    // // Send email to the provided contact email
-    // await sendEmail(contactEmail, subject, text, html);
-
     // Respond with success message and the new hospital data
-    res.status(201).json({ message: 'Hospital created successfully, and email sent!', hospital: newHospital });
+    res.status(201).json({
+      message: 'Hospital created successfully, and email sent!',
+      hospital: newHospital,
+    });
   } catch (err) {
     // If there's an error, return a 500 status with the error message
     res.status(500).json({ message: 'Error creating hospital', error: err.message });
   }
 };
 
+exports.hospitalLogin = async (req, res) => {
+  try {
+    const { regId } = req.body;
+
+    // Check if regId is provided
+    if (!regId) {
+      return res.status(400).json({ message: 'Registration ID is required.' });
+    }
+
+    // Find the hospital by regId
+    const hospital = await Hospital.findOne({ regId });
+    if (!hospital) {
+      return res.status(401).json({ message: 'Invalid Registration ID.' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { hospitalId: hospital._id, regId: hospital.regId }, // Payload
+      SECRET_KEY, // Secret key
+      { expiresIn: 999991000000000 } // Options
+    );
+
+    // Send the token and hospital details
+    res.status(200).json({ message: 'Login successful', token, hospital });
+  } catch (err) {
+    res.status(500).json({ message: 'Error during login', error: err.message });
+  }
+};
 // Get all hospitals
 exports.getAllHospitals = async (req, res) => {
   try {

@@ -8,7 +8,6 @@ const hospitalSchema = new mongoose.Schema({
   },
   regId: {
     type: String,
-    required: true, // Registration ID is required
     unique: true,  
   },
   hospitalType: {
