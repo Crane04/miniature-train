@@ -17,9 +17,11 @@ app.use(
   })
 );
 const hospitalRoutes = require("./routes/hospitalRoutes");
+const patientsRoutes = require("./routes/userRoutes");
 // Middleware
 app.use(express.json());
 app.use("/hospital", hospitalRoutes);
+app.use("/patients", patientsRoutes);
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

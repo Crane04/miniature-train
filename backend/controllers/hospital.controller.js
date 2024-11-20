@@ -67,6 +67,31 @@ exports.hospitalLogin = async (req, res) => {
     res.status(500).json({ message: 'Error during login', error: err.message });
   }
 };
+
+exports.verifyHospital = async (req, res) => {
+  try {
+    const { regId } = req.body;
+
+    // Check if regId is provided
+    if (!regId) {
+      return res.status(400).json({ message: 'Registration ID is required.' });
+    }
+
+    // Find the hospital by regId
+    const hospital = await Hospital.findOne({ regId });
+    if (!hospital) {
+      return res.status(404).json({ message: 'Hospital not found.' });
+    }
+
+    // Update the verified status to true
+    hospital.verified = true;
+    await hospital.save();
+
+    res.status(200).json({ message: 'Hospital verified successfully.', hospital });
+  } catch (err) {
+    res.status(500).json({ message: 'Error verifying hospital', error: err.message });
+  }
+};
 // Get all hospitals
 exports.getAllHospitals = async (req, res) => {
   try {

@@ -6,6 +6,7 @@ const hospitalController = require('../controllers/hospital.controller');
 router.post('/create', hospitalController.createHospital);
 
 router.post('/login', hospitalController.hospitalLogin);
+router.post('/verify', hospitalController.verifyHospital);
 
 // Route to get all hospitals
 router.get('/', hospitalController.getAllHospitals);
