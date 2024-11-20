@@ -1,0 +1,10 @@
+post http://localhost:3000/hospital/create
+Content-Type: application/json
+
+{
+    "name": "lasu hospital",
+    "regId": "xyz1234",
+    "hospitalType": "Public",
+    "address": "123 Main St, City, State, Zip",
+    "contactEmail": "encrane04@example.com"
+}
