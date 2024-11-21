@@ -266,3 +266,69 @@ exports.searchUser = async (req, res) => {
   }
 };
 
+exports.getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get the userId from the URL parameters
+
+    // Fetch the user from the database
+    const user = await User.findById(userId);
+
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+
+    // Return the user data
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error retrieving user',
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteUserById = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get the userId from the URL parameters
+
+    // Check if the user exists
+    const user = await User.find({_id: userId});
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+    console.log('Deleted User:', deletedUser); // Log the deleted user
+
+
+    const users = await User.find();
+
+    res.status(200).json({
+      message: 'User deleted successfully',
+      users
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error deleting user',
+      error: error.message,
+    });
+  }
+};
+
+exports.clearAllUsers = async (req, res) => {
+  try {
+    // Delete all documents in the Hospital collection
+    await User.deleteMany({});
+
+    // Return a success message after clearing the hospitals
+    res.status(200).json({ message: 'All hospitals have been cleared successfully.' });
+  } catch (err) {
+    // If there's an error, return a 500 status with the error message
+    res.status(500).json({ message: 'Error clearing hospitals', error: err.message });
+  }
+};
