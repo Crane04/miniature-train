@@ -11,12 +11,6 @@ const userSchema = new mongoose.Schema(
     },
     genotype: { type: String, required: true },
     bloodGroup: { type: String, required: true },
-    previousIllnesses: [
-      {
-        illness: { type: String, required: true },
-        dateRecorded: { type: Date, default: Date.now }, // Default to current date
-      },
-    ],
     disability: { type: String, default: null }, // Null if no disability
     previousHospitals: [
       {
@@ -30,6 +24,10 @@ const userSchema = new mongoose.Schema(
       data: Buffer, // Binary data for the image
       contentType: String, // MIME type (e.g., 'image/png', 'image/jpeg')
     },
+    additionalNotes: {
+      type: String,
+      default: null, // Null if no additional notes
+    }
   },
   { timestamps: true } // Adds createdAt and updatedAt fields automatically
 );
