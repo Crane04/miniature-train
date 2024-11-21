@@ -24,10 +24,16 @@ const userSchema = new mongoose.Schema(
       data: Buffer, // Binary data for the image
       contentType: String, // MIME type (e.g., 'image/png', 'image/jpeg')
     },
-    additionalNotes: {
-      type: String,
-      default: null, // Null if no additional notes
-    }
+    image: {
+      type: String, // URL to the image file stored in the server
+      default: null, // Default to null if no image uploaded
+    },
+    additionalNotes: [
+      {
+        note: { type: String, required: true },
+        date: { type: Date, default: Date.now }, // Default to current date
+      },
+    ]
   },
   { timestamps: true } // Adds createdAt and updatedAt fields automatically
 );
